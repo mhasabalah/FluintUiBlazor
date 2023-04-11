@@ -1,0 +1,80 @@
+﻿@page "/grid"
+@inject HttpClient Http
+<h3>Grid</h3>
+
+@if (items == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    
+<FluentDataGrid RowsData="@FilteredItems" ResizableColumns=true Pagination="@pagination" GridTemplateColumns="0.2fr 1fr 0.2fr 0.2fr 0.2fr 0.2fr" RowClass="@rowClass" style="height: 405px; overflow:auto;">
+    <TemplateColumn Title="Rank" SortBy="@rankSort" Align="Align.Center" InitialSortDirection="SortDirection.Ascending" IsDefaultSortColumn=true>
+        <img class="flag" src="https://brave-cliff-0c0c93310.azurestaticapps.net/_content/FluentUI.Demo.Shared/flags/ar.svg" />
+    </TemplateColumn>
+    <PropertyColumn Property="@(c => c.Summary)" Sortable="true">
+        <ColumnOptions>
+            <div class="search-box">
+                <FluentSearch type="search" Autofocus=true @bind-Value=nameFilter @oninput="HandleWeatherForecastFilter" @onchange="HandleClear" Placeholder="WeatherForecast name..." />
+            </div>
+        </ColumnOptions>
+    </PropertyColumn>
+        <PropertyColumn Title="Date" Property="@(c => c.Date)" Sortable="true" Align=Align.Left/>
+        <PropertyColumn Title="Temp. (C)" Property="@(c => c.TemperatureC)" Sortable="true" Align=Align.Center/>
+        <PropertyColumn Title="Temp. (F)" Property="@(c => c.TemperatureF)" Sortable="true" Align=Align.Center/>
+        <PropertyColumn Title="Summary" Property="@(c => c.Summary)" Sortable="true" Align=Align.Right/>
+</FluentDataGrid>
+
+}
+
+<FluentPaginator Value="@pagination" />
+
+@code {
+
+    IQueryable<WeatherForecast>? items;
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    string nameFilter = string.Empty;
+
+    GridSort<WeatherForecast> rankSort = GridSort<WeatherForecast>
+        .ByDescending(x => x.Date)
+        .ThenDescending(x => x.TemperatureC)
+        .ThenDescending(x => x.TemperatureF);
+    Func<WeatherForecast, string> rowClass = x => x.Summary.StartsWith("A") ? "highlighted-row" : string.Empty;
+
+    IQueryable<WeatherForecast>? FilteredItems => items?.Where(x => x.Summary.Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase));
+
+
+    private void HandleWeatherForecastFilter(ChangeEventArgs args)
+    {
+        if (args.Value is string value)
+        {
+            nameFilter = value;
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        items = (await Http.GetFromJsonAsync<List<WeatherForecast>>("sample-data/weather.json"))!.AsQueryable();
+    }
+
+    private void HandleClear(ChangeEventArgs args)
+    {
+        if (args is not null && string.IsNullOrWhiteSpace(args.Value?.ToString()))
+        {
+            nameFilter = string.Empty;
+        }
+    }
+
+
+       public class WeatherForecast
+    {
+        public DateTime Date { get; set; }
+
+        public int TemperatureC { get; set; }
+
+        public string? Summary { get; set; }
+
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+}
