@@ -141,7 +141,7 @@
 
         GlobalState.SetLuminance(baseLayerLuminance);
 
-        await JSRuntime!.InvokeVoidAsync("switchHighlightStyle", baseLayerLuminance == StandardLuminance.DarkMode);
+        //await JSRuntime!.InvokeVoidAsync("switchHighlightStyle", baseLayerLuminance == StandardLuminance.DarkMode);
     }
 
     private async void HandleColorChange(ChangeEventArgs args)

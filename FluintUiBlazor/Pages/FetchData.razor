@@ -21,11 +21,11 @@ else
                 </div>
             </ColumnOptions>
         </PropertyColumn>
-        <PropertyColumn Title="Date" Property="@(c => c.Summary)" Sortable="true" Align=Align.Left />
-        <PropertyColumn Title="Temp. (C)" Property="@(c => c.TemperatureC)" Sortable="true" Align=Align.Center />
-        <PropertyColumn Title="Temp. (F)" Property="@(c => c.TemperatureF)" Sortable="true" Align=Align.Center />
-        <PropertyColumn Title="Summary" Property="@(c => c.Date)" Sortable="true" Align=Align.Right />
-        <PropertyColumn Title="Summary" Property="@(c => c.TemperatureF)" Sortable="true" Align=Align.Right />
+        <PropertyColumn Title="Date" Property="@(c => c.Summary)" Sortable="true" Align=Microsoft.Fast.Components.FluentUI.Align.Left />
+        <PropertyColumn Title="Temp. (C)" Property="@(c => c.TemperatureC)" Sortable="true" Align=Microsoft.Fast.Components.FluentUI.Align.Center />
+        <PropertyColumn Title="Temp. (F)" Property="@(c => c.TemperatureF)" Sortable="true" Align=Microsoft.Fast.Components.FluentUI.Align.Center />
+        <PropertyColumn Title="Summary" Property="@(c => c.Date)" Sortable="true" Align=Microsoft.Fast.Components.FluentUI.Align.Right />
+        <PropertyColumn Title="Summary" Property="@(c => c.TemperatureF)" Sortable="true" Align=Microsoft.Fast.Components.FluentUI.Align.Right />
     </FluentDataGrid>
 }
 <FluentPaginator Value="pagination" />

@@ -172,3 +172,9 @@ header {
     
     border: 1px solid transparent;
 }
+
+
+.state-override {
+    width: 500px;
+    height: 500px;
+}

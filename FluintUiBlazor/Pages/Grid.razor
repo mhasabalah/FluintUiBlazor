@@ -1,80 +1,85 @@
 ﻿@page "/grid"
-@inject HttpClient Http
-<h3>Grid</h3>
+<FluentCard style="width= 500px;">
 
-@if (items == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    
-<FluentDataGrid RowsData="@FilteredItems" ResizableColumns=true Pagination="@pagination" GridTemplateColumns="0.2fr 1fr 0.2fr 0.2fr 0.2fr 0.2fr" RowClass="@rowClass" style="height: 405px; overflow:auto;">
-    <TemplateColumn Title="Rank" SortBy="@rankSort" Align="Align.Center" InitialSortDirection="SortDirection.Ascending" IsDefaultSortColumn=true>
-        <img class="flag" src="https://brave-cliff-0c0c93310.azurestaticapps.net/_content/FluentUI.Demo.Shared/flags/ar.svg" />
-    </TemplateColumn>
-    <PropertyColumn Property="@(c => c.Summary)" Sortable="true">
-        <ColumnOptions>
-            <div class="search-box">
-                <FluentSearch type="search" Autofocus=true @bind-Value=nameFilter @oninput="HandleWeatherForecastFilter" @onchange="HandleClear" Placeholder="WeatherForecast name..." />
-            </div>
-        </ColumnOptions>
-    </PropertyColumn>
-        <PropertyColumn Title="Date" Property="@(c => c.Date)" Sortable="true" Align=Align.Left/>
-        <PropertyColumn Title="Temp. (C)" Property="@(c => c.TemperatureC)" Sortable="true" Align=Align.Center/>
-        <PropertyColumn Title="Temp. (F)" Property="@(c => c.TemperatureF)" Sortable="true" Align=Align.Center/>
-        <PropertyColumn Title="Summary" Property="@(c => c.Summary)" Sortable="true" Align=Align.Right/>
-</FluentDataGrid>
+    <ApexChart TItem="Order"
+               Options="options"
+               @ref=chart
+               Title="Order Net Value">
 
-}
+        <ApexPointSeries TItem="Order"
+                         Items="Orders"
+                         Name="Gross Value"
+                         XValue="@(e => e.Country)"
+                         YAggregate="@(e => e.Sum(e => e.GrossValue))"
+                         OrderByDescending="e=>e.Y"
+                         SeriesType="SeriesType.Bar" />
 
-<FluentPaginator Value="@pagination" />
+        <ApexPointSeries TItem="Order"
+                         Items="Orders"
+                         Name="Net Value"
+                         XValue="@(e => e.Country)"
+                         YAggregate="@(e => e.Sum(e => e.NetValue))"
+                         OrderByDescending="e=>e.Y"
+                         SeriesType="SeriesType.Bar" />
+    </ApexChart>
+
+</FluentCard>
 
 @code {
+    private ApexChart<Order> chart;
 
-    IQueryable<WeatherForecast>? items;
+    bool _inDarkMode;
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = default!;
+    ApexChartOptions<Order> options;
 
-    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    string nameFilter = string.Empty;
-
-    GridSort<WeatherForecast> rankSort = GridSort<WeatherForecast>
-        .ByDescending(x => x.Date)
-        .ThenDescending(x => x.TemperatureC)
-        .ThenDescending(x => x.TemperatureF);
-    Func<WeatherForecast, string> rowClass = x => x.Summary.StartsWith("A") ? "highlighted-row" : string.Empty;
-
-    IQueryable<WeatherForecast>? FilteredItems => items?.Where(x => x.Summary.Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase));
-
-
-    private void HandleWeatherForecastFilter(ChangeEventArgs args)
+    public List<Order> Orders { get; set; } = new List<Order>
     {
-        if (args.Value is string value)
+        new Order { Country = "USA", GrossValue = 1600, NetValue = 1580 },
+        new Order { Country = "Brazial", GrossValue = 2100, NetValue = 2080 },
+        new Order { Country = "mkmk", GrossValue = 200, NetValue = 245 }
+
+    };
+    public class Order
+    {
+        public string Country { get; set; }
+        public decimal GrossValue { get; set; }
+        public decimal NetValue { get; set; }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
         {
-            nameFilter = value;
+
+            _inDarkMode = await JSRuntime!.InvokeAsync<bool>("isDarkMode");
+
+            if (_inDarkMode)
+            {
+                options = new ApexChartOptions<Order>
+                    {
+                        Theme = new Theme
+                        {
+                            Mode = Mode.Dark,
+                            Palette = PaletteType.Palette1
+                        }
+                    };
+            }
+            else
+            {
+                options = new ApexChartOptions<Order>
+                    {
+                        Theme = new Theme
+                        {
+                            Mode = Mode.Light,
+                            Palette = PaletteType.Palette1
+                        }
+                    };
+            }
+            await chart.RenderAsync();
+            StateHasChanged();
         }
     }
-    protected override async Task OnInitializedAsync()
-    {
-        items = (await Http.GetFromJsonAsync<List<WeatherForecast>>("sample-data/weather.json"))!.AsQueryable();
-    }
-
-    private void HandleClear(ChangeEventArgs args)
-    {
-        if (args is not null && string.IsNullOrWhiteSpace(args.Value?.ToString()))
-        {
-            nameFilter = string.Empty;
-        }
-    }
 
 
-       public class WeatherForecast
-    {
-        public DateTime Date { get; set; }
-
-        public int TemperatureC { get; set; }
-
-        public string? Summary { get; set; }
-
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-    }
 }
