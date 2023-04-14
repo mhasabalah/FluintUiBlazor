@@ -1,0 +1,28 @@
+﻿<NavMenu>
+    <NavMenuLink Href="/" Class="level1" Text="Item 1" Icon="@(FluentIcons.Home)" />
+    <NavMenuLink Class="level1" Text="Item 2" />
+    <NavMenuGroup Expanded Text="Item 3">
+        <NavMenuLink Href="/counter" Text="Item 3.1" Icon="@(FluentIcons.LeafOne)" />
+        <NavMenuLink Href="/fetchdata" Text="Item 3.2" Icon="@(FluentIcons.LeafTwo)" />
+    </NavMenuGroup>
+    <NavMenuGroup Text="Item 4">
+        <NavMenuLink Text="Item 4.1" />
+        <NavMenuLink Text="Item 4.2" Icon="@(FluentIcons.LeafOne)" />
+    </NavMenuGroup>
+    <NavMenuGroup Text="Item 5">
+        <NavMenuLink Text="Item 5.1" Icon="@(FluentIcons.LeafTwo)" />
+        <NavMenuGroup Text="Item 5.2">
+            <NavMenuLink Text="Item 5.2.1" />
+            <NavMenuLink Text="Item 5.2.2" />
+        </NavMenuGroup>
+        <NavMenuGroup Text="Item 5.3">
+            <NavMenuLink Text="Item 5.3.1" Icon="@(FluentIcons.LeafOne)" />
+            <NavMenuLink Text="Item 5.3.2" />
+        </NavMenuGroup>
+    </NavMenuGroup>
+    <NavMenuGroup Text="Item with Href">
+        <NavMenuLink Text="Go to Bing" Icon="@(FluentIcons.LeafOne)" Href="https://bing.com" />
+        <NavMenuLink Text="Go to home page" Icon="@(FluentIcons.Home)" Href="/" />
+    </NavMenuGroup>
+    <NavMenuLink Class="level1" Text="Last item" Icon="@(FluentIcons.LeafThree)" Disabled="true" />
+</NavMenu>

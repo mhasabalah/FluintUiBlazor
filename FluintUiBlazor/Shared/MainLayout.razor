@@ -45,28 +45,32 @@
             </FluentSwitch>
         </div>
     </header>
-    <div class="main">
-        <div class="navigation">
-            <NavMenu />
-        </div>
 
-        <div class="content">
-            <main>
-                <article class="content px-4">
-
-                    <ErrorBoundary>
+    <main>
+        <input type="checkbox" id="menu-toggle" checked=@menuchecked @onclick=HandleChecked />
+        <label for="menu-toggle" class="menu-icon">
+            <FluentIcon Name="@FluentIcons.Navigation" />
+        </label>
+            <nav>
+                <NavTreeTest />
+            </nav>
+            <div class="content">
+                <article id="article">
+                    <ErrorBoundary @ref="errorBoundary">
                         <ChildContent>
                             @Body
                         </ChildContent>
                         <ErrorContent Context="ex">
-                            <p class="error">@ex.Message</p>
+                            <div class="blazor-error-boundary">@ex.Message</div>
                         </ErrorContent>
                     </ErrorBoundary>
                 </article>
-            </main>
-        </div>
-    </div>
+            </div>
+    </main>
 </div>
+
+
+
 
 
 @code {
@@ -90,6 +94,9 @@
     private GlobalState GlobalState { get; set; } = default!;
 
     [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    [Inject]
     private IJSRuntime JSRuntime { get; set; } = default!;
 
     [Inject]
@@ -100,11 +107,19 @@
 
 
 
+    bool menuchecked = false;
+
+    ErrorBoundary? errorBoundary;
+
+
     protected override void OnInitialized()
     {
 
         OfficeColor[] colors = Enum.GetValues<OfficeColor>().ToArray();
         _selectedColorOption = colors[new Random().Next(colors.Length)];
+
+        _prevUri = NavigationManager.Uri;
+        NavigationManager.LocationChanged += LocationChanged;
 
         base.OnInitialized();
     }
@@ -170,5 +185,23 @@
 
         await Direction.SetValueFor(container, dir.ToAttributeValue());
         await JSRuntime!.InvokeVoidAsync("switchDirection", dir.ToString());
+    }
+
+    private void HandleChecked()
+    {
+        menuchecked = !menuchecked;
+    }
+
+    private void LocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        if (!e.IsNavigationIntercepted && new Uri(_prevUri!).AbsolutePath != new Uri(e.Location).AbsolutePath)
+        {
+            _prevUri = e.Location;
+            if (_mobile && menuchecked == true)
+            {
+                menuchecked = false;
+                StateHasChanged();
+            }
+        }
     }
 }   
